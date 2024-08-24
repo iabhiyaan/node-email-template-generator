@@ -1,14 +1,22 @@
-// Use default import for express
-import express from "express"
-import { Request, Response } from "express"
+import fs from "fs"
+import path from "path"
+import { template } from "lodash"
 
-const app = express()
-const port = 3000
+export const filePath = path.join(__dirname, "stubs/hello.stub")
+export const outputFilePath = path.join(__dirname, "output/hello.html")
 
-app.get("/", (req: Request, res: Response) => {
-  res.send("Hello World!")
-})
-
-app.listen(port, () => {
-  console.log(`Server is running on port ${port}`)
-})
+export function processFile() {
+  fs.readFile(filePath, "utf8", (err, data) => {
+    if (err) {
+      if (err.code === "ENOENT") {
+        console.error("File not found:", err.path)
+      } else {
+        console.error("Error reading file:", err)
+      }
+      return
+    }
+    const updatedText = template(data)({ user: "Abhiyan" })
+    fs.writeFileSync(outputFilePath, updatedText)
+  })
+}
+processFile()
